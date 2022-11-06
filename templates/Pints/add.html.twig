@@ -1,0 +1,18 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+            
+            </div>
+            <div class="col-sm-4">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_widget(form) }}
+                <input name="save" type="submit" value="ajout un pin">
+                {{ form_end(form) }}        
+            </div>
+        </div>
+    </div>
+  
+{% endblock %}
