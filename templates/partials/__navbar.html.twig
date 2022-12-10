@@ -2,12 +2,18 @@
     <div class="container d-flex flex-wrap">
         <ul class="nav me-auto">
                 <li class="nav-item"><a href="{{path('app_pints')}}" class="nav-link link-dark px-2 active" aria-current="page">Accueil</a></li>
-                <li class="nav-item"><a href="{{ path('app_pints_list') }}" class="nav-link link-dark px-2">List des photos</a></li>
-                <li class="nav-item"><a href="{{path('app_pints_add')}}" class="nav-link link-dark px-2">Ajout un photo</a></li>
+                {% if app.user %}
+                    <li class="nav-item"><a href="{{ path('app_pints_list') }}" class="nav-link link-dark px-2">List des photos</a></li>
+                    <li class="nav-item"><a href="{{path('app_pints_add')}}" class="nav-link link-dark px-2">Ajout un photo</a></li>
+                {% endif %}
         </ul>
         <ul class="nav">
-            <li class="nav-item"><a href="#" class="nav-link link-dark px-2">Login</a></li>
-            <li class="nav-item"><a href="#" class="nav-link link-dark px-2">Sign up</a></li>
+            {% if app.user == null %}
+                <li class="nav-item"><a href="{{ path('app_login') }}" class="nav-link link-dark px-2">Login</a></li>
+                <li class="nav-item"><a href="{{ path('app_register') }}" class="nav-link link-dark px-2">Sign up</a></li>
+            {% else %}
+            <li class="nav-item"><a href="{{ path('app_logout') }}" class="nav-link link-dark px-2">logout</a></li>
+            {% endif %}
         </ul>
     </div>
 </nav>

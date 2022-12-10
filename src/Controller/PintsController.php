@@ -9,14 +9,20 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use App\Service\FileUploader;
+use Symfony\Component\Security\Core\Security;
 
 class PintsController extends AbstractController
 {
     private $em;
-    public function __construct(EntityManagerInterface $em)
+    private $security;
+    public function __construct(EntityManagerInterface $em, Security $security)
     {
         $this->em = $em;
+        $this->security = $security;
     }
 
     #[Route('/', name: 'app_pints')]
@@ -35,8 +41,9 @@ class PintsController extends AbstractController
     }
 
     #[Route('/add', name: 'app_pints_add')]
-    public function add(Request $request): Response
+    public function add(Request $request, FileUploader $fileUploader): Response
     {
+        $user = $this->security->getUser();
         $pints = new Pints();
         $form = $this->createForm(PintsType::class, $pints);
         $form->handleRequest($request);
@@ -46,6 +53,13 @@ class PintsController extends AbstractController
             $description = $pints->getDescription();
             $pints->setName($name);
             $pints->setDescription($description);
+            $pints->setUser($user);
+            $pinFile = $form->get('picture')->getData();
+            if ($pinFile)
+            {
+                $pinsFileName = $fileUploader->upload($pinFile);
+                $pints->setPicture($pinsFileName);
+            }
             $this->em->persist($pints);
             $this->em->flush();
             $this->addFlash(
@@ -62,7 +76,7 @@ class PintsController extends AbstractController
     }
 
     #[Route('/edit/{id}', name: 'app_pints_edit')]
-    public function edit(ManagerRegistry $doctrine, EntityManagerInterface $em, Request $request, int $id): Response
+    public function edit(ManagerRegistry $doctrine,  FileUploader $fileUploader, Request $request, int $id): Response
     {
         $pints = $doctrine->getRepository(Pints::class)->find($id);
 
@@ -74,6 +88,12 @@ class PintsController extends AbstractController
             $description = $pints->getDescription();
             $pints->setName($name);
             $pints->setDescription($description);
+            $pinFile = $form->get('picture')->getData();
+            if ($pinFile)
+            {
+                $pinsFileName = $fileUploader->upload($pinFile);
+                $pints->setPicture($pinsFileName);
+            }
             $this->em->persist($pints);
             $this->em->flush();
 
